@@ -21,6 +21,7 @@ if(isset($_POST['login'])){
             session_start();
             $_SESSION['rol'] = $login['rol'];
             $_SESSION['nombre'] = $login['nombre'];
+            $_SESSION['id'] = $login['id'];
             $_SESSION['login'] = true;
             header("Location: /softkit/pages");
         }
@@ -86,6 +87,113 @@ if(isset($_POST['register-product'])){
     }
 }
 
+if(isset($_POST['generate-kits'])){
+    session_start();
+    try{
+        $id = $_SESSION['id'];
+        $kits = $_POST['kits']; // 10 kits
+        $productos = $_POST['productos']; // 2 tipos de productos en un kit
+        $cantidad = $_POST['cantidad']; // 3 productos por tipo
+        $propuesta = $_POST['propuesta']; // 4 propuestas
+        $connection = Database::connect();
+
+        $limit = $kits*$cantidad;
+
+        $sql = "SELECT `id`,`preciounitario` FROM `producto` WHERE `estado`=1 AND `stock`>=:limit";
+        $products = $connection->prepare($sql);
+        $products->bindParam(":limit",$limit,PDO::PARAM_STR);
+        $products->execute();
+        $products=$products->fetchAll(PDO::FETCH_ASSOC);
+
+        $datos=array();
+        $fin=array();
+        
+        for ($i=0; $i < sizeof($products); $i++) {
+            $obj = new stdClass();
+            $obj -> id=$products[$i]['id'];
+            $obj -> precio=$products[$i]['preciounitario'];
+            $obj -> subtotal=$products[$i]['preciounitario']*$cantidad;
+            array_push($datos, $obj);
+        }
+        
+        for ($i=0; $i < $propuesta; $i++) {
+            $total=0;
+            $sub = $datos;
+            $obj = array();
+            for ($j=0; $j < $productos; $j++) { 
+                $r = rand(0,sizeof($sub)-1);
+                array_push($obj, $sub[$r]);
+                unset($sub[$r]);
+                $sub = array_values($sub);
+            }
+            if(in_array($obj, $fin)){
+                debug_to_console("Se repite");
+                $i--;
+            }else{
+                $fin[$i]=$obj;
+                foreach($obj as $key=>$value){
+                    $total += $value->subtotal;
+                }
+                
+                $sql2 = "INSERT INTO kit (total, usuario, estado) VALUES(:total, :id, 1)";
+                $kit = $connection->prepare($sql2);
+                $kit->bindParam(":total",$total,PDO::PARAM_STR);
+                $kit->bindParam(":id",$id,PDO::PARAM_STR);
+                $result=$kit->execute();
+                $idkit = strval($connection->lastInsertId());
+
+                if($result && !is_null($idkit)){
+                    foreach($obj as $key=>$value){
+                        $sql3="INSERT INTO kit_x_producto (idProducto, cantidad, subtotal, idKit)
+                        VALUES(:idproducto, :cantidad, :subtotal, :idkit)";
+                        $kitproducto = $connection->prepare($sql3);
+                        $kitproducto->bindParam(":idproducto",$value->id,PDO::PARAM_STR);
+                        $kitproducto->bindParam(":cantidad",$cantidad,PDO::PARAM_STR);
+                        $kitproducto->bindParam(":subtotal",$value->subtotal,PDO::PARAM_STR);
+                        $kitproducto->bindParam(":idkit",$idkit,PDO::PARAM_STR);
+                        $kitproducto->execute();
+                    }
+                }
+            }
+        }
+        header("Location: /softkit/pages/distribucion.php");
+    }catch(PDOException $e){
+        debug_to_console($e);
+    }
+}
+
+if(isset($_POST['remove-kits'])){
+    try{
+        $connection = Database::connect();
+        $sql = "DELETE FROM kit WHERE `estado`=1";
+        $stmt = $connection->prepare($sql);
+        $stmt->execute();
+        header("Location: /softkit/pages/distribucion.php");
+    }catch(PDOException $e){
+
+    }
+}
+
+if(isset($_POST['process-kit'])){
+    $id = $_POST['process-kit'];
+    try{
+        $connection = Database::connect();
+        $sql = "UPDATE kit set `estado`=2 WHERE `id`=:id";
+        $stmt = $connection->prepare($sql);
+        $stmt->bindParam(":id",$id,PDO::PARAM_STR);
+        $stmt->execute();
+        /*
+        Código para actualizar el stock de los productos
+
+        $sql2 = "SELECT p.descripcion, kp.cantidad, p.stock FROM kit k JOIN kit_x_producto kp JOIN producto p
+        WHERE kp.idkit = k.id AND p.id = kp.idproducto AND k.id = :id"; <- Obtienes los productos del kit
+        
+        */
+        header("Location: /softkit/pages/distribucion.php");
+    }catch(PDOException $e){
+
+    }
+}
 
 function createBackup(){
     try{
@@ -124,8 +232,9 @@ function getKitDetails($id){
         $connection=Database::connect();
         $sql="SELECT k.id, CONCAT(u.nombre,' ',u.apellido) as usuario, (SELECT COUNT(*) FROM kit_x_producto kp 
         WHERE kp.idKit = k.id) as productos, p.descripcion, p.precioUnitario, kp.cantidad, kp.subtotal, k.total, k.fechaCreacion FROM kit k 
-        JOIN usuario u JOIN producto p JOIN kit_x_producto kp WHERE u.id = k.usuario AND k.id = kp.idKit AND kp.idProducto = p.id AND k.estado = 1 AND k.id = 2";
+        JOIN usuario u JOIN producto p JOIN kit_x_producto kp WHERE u.id = k.usuario AND k.id = kp.idKit AND kp.idProducto = p.id AND k.estado = 1 AND k.id = :id";
         $kitDetails=$connection->prepare($sql);
+        $kitDetails->bindParam(":id",$id,PDO::PARAM_STR);
         $kitDetails->execute();
         $kitDetails=$kitDetails->fetchAll(PDO::FETCH_ASSOC);
         return $kitDetails;

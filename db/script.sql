@@ -1,11 +1,10 @@
-
 CREATE TABLE `kit` (
   `id` int(11) NOT NULL,
   `usuario` int(11) NOT NULL,
   `total` decimal(11,2) NOT NULL,
-  `fechaCreacion` date NOT NULL,
+  `fechaCreacion` date NOT NULL DEFAULT current_timestamp(),
   `fechaProcesada` date DEFAULT NULL,
-  `estado` int(1) NOT NULL
+  `estado` int(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -13,8 +12,14 @@ CREATE TABLE `kit` (
 --
 
 INSERT INTO `kit` (`id`, `usuario`, `total`, `fechaCreacion`, `fechaProcesada`, `estado`) VALUES
-(1, 1, '21.90', '2022-11-12', NULL, 1),
-(2, 1, '23.30', '2022-11-13', NULL, 2);
+(2, 1, '23.30', '2022-11-13', NULL, 2),
+(42, 1, '35.10', '2022-11-14', NULL, 2),
+(44, 1, '38.00', '2022-11-14', NULL, 1),
+(45, 1, '38.00', '2022-11-14', NULL, 1),
+(46, 1, '28.20', '2022-11-14', NULL, 1),
+(47, 1, '39.40', '2022-11-14', NULL, 1),
+(48, 1, '38.00', '2022-11-14', NULL, 1),
+(49, 1, '38.60', '2022-11-14', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -35,12 +40,30 @@ CREATE TABLE `kit_x_producto` (
 --
 
 INSERT INTO `kit_x_producto` (`id`, `idProducto`, `cantidad`, `subtotal`, `idKit`) VALUES
-(1, 2, 3, '7.50', 1),
-(2, 1, 2, '11.20', 1),
-(3, 3, 1, '3.20', 1),
 (4, 2, 1, '2.50', 2),
 (5, 1, 2, '11.20', 2),
-(6, 3, 3, '9.60', 2);
+(6, 3, 3, '9.60', 2),
+(83, 3, 3, '9.60', 42),
+(84, 2, 3, '7.50', 42),
+(85, 5, 3, '18.00', 42),
+(89, 4, 2, '21.00', 44),
+(90, 5, 2, '12.00', 44),
+(91, 2, 2, '5.00', 44),
+(92, 5, 2, '12.00', 45),
+(93, 4, 2, '21.00', 45),
+(94, 2, 2, '5.00', 45),
+(95, 1, 2, '11.20', 46),
+(96, 5, 2, '12.00', 46),
+(97, 2, 2, '5.00', 46),
+(98, 5, 2, '12.00', 47),
+(99, 3, 2, '6.40', 47),
+(100, 4, 2, '21.00', 47),
+(101, 2, 2, '5.00', 48),
+(102, 4, 2, '21.00', 48),
+(103, 5, 2, '12.00', 48),
+(104, 4, 2, '21.00', 49),
+(105, 1, 2, '11.20', 49),
+(106, 3, 2, '6.40', 49);
 
 -- --------------------------------------------------------
 
@@ -64,7 +87,9 @@ CREATE TABLE `producto` (
 INSERT INTO `producto` (`id`, `descripcion`, `precioUnitario`, `stock`, `fechaIngreso`, `estado`) VALUES
 (1, 'Tarro de leche Gloria', '5.60', 25, '2022-11-12', 1),
 (2, 'Bolsa de azúcar', '2.50', 30, '2022-11-12', 1),
-(3, 'Bolsa de Arroz', '3.20', 34, '2022-11-12', 1);
+(3, 'Bolsa de Arroz', '3.20', 34, '2022-11-12', 1),
+(4, 'Aceite Vegetal Primor Premium 900ml', '10.50', 30, '2022-11-14', 1),
+(5, 'Trozos de Atún en Aceite Primor 140g', '6.00', 40, '2022-11-14', 1);
 
 -- --------------------------------------------------------
 
@@ -124,8 +149,8 @@ ALTER TABLE `kit`
 --
 ALTER TABLE `kit_x_producto`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_kitproducto_kit` (`idKit`),
-  ADD KEY `fk_kitproducto_producto` (`idProducto`);
+  ADD KEY `fk_kitproducto_producto` (`idProducto`),
+  ADD KEY `fk_kitproducto_kit` (`idKit`);
 
 --
 -- Indices de la tabla `producto`
@@ -154,19 +179,19 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `kit`
 --
 ALTER TABLE `kit`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- AUTO_INCREMENT de la tabla `kit_x_producto`
 --
 ALTER TABLE `kit_x_producto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
 
 --
 -- AUTO_INCREMENT de la tabla `producto`
 --
 ALTER TABLE `producto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `rol`
@@ -194,7 +219,7 @@ ALTER TABLE `kit`
 -- Filtros para la tabla `kit_x_producto`
 --
 ALTER TABLE `kit_x_producto`
-  ADD CONSTRAINT `fk_kitproducto_kit` FOREIGN KEY (`idKit`) REFERENCES `kit` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_kitproducto_kit` FOREIGN KEY (`idKit`) REFERENCES `kit` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_kitproducto_producto` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --

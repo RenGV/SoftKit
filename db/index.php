@@ -6,7 +6,7 @@ class Database{
     private static $host = 'localhost';
     private static $user = 'root';
     private static $password = '';
-    private static $cont  = null;
+    private static $cont = null;
     
     public function __construct() {
 		die('No esta Permitido Instanciar la Conexion');

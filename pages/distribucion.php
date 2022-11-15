@@ -8,13 +8,20 @@
 <body class="bg-main">
 
 <?php 
-    
     require("../partials/header.php");
     require_once("../controller/index.php");
+
+    if(isset($_GET['id'])){
+        $kitDetails=getKitDetails($_GET['id']);
+        debug_to_console(json_encode($kitDetails));
+    }
+
+    require("../assets/modals/kitDetails.php");
     
     $data = listAllKits();
 
     $processedData = listAllProcessedKits();
+
 
 ?>
 
@@ -25,6 +32,7 @@
     </div>
     <div class="card-body text-center">
         <a class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal" href="?nuevo=registro" role="button">Generar distribución <i class="bi bi-plus"></i></a>
+        <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModalDel">Eliminar propuestas generadas <i class="bi bi-trash3"></i></a>
     </div>
 </div>
 </div>
@@ -32,7 +40,7 @@
 <div class="container-fluid mt-5 mb-5">
 
 <div style="width: max-content;" class="p-2 px-4 text-center bg-warning rounded-3">
-    <h5><i class="bi bi-robot"></i> Propuestas de distribucion generadas</h5>
+    <h5><i class="bi bi-robot"></i> Propuestas de distribución generadas</h5>
 </div>
 
 <table id="table_id" class="display table mt-4 mb-4 table-bordered">
@@ -55,9 +63,9 @@
                 <td>S/. <?php echo $value['total']; ?></td>
                 <td><?php echo $value['fechaCreacion']; ?></td>
                 <td class="d-flex justify-content-center gap-2">
-                    <a class="btn btn-warning btn-sm" href="?id=<?php echo $value['id_producto']; ?>" data-bs-toggle="modal" data-bs-target="#exampleModal">Autorizar <i class="bi bi-check2-square"></i></a>
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Ver Detalles</button>
-                    <a class="btn btn-danger btn-sm" href="?id=<?php echo $value['id_producto']; ?>" data-bs-toggle="modal" data-bs-target="#exampleModal">Eliminar</a>
+                    <a data-id="<?php echo $value['id']; ?>" class="btn btn-warning btn-sm" id="buttonProcess" data-bs-toggle="modal" data-bs-target="#processModal">Autorizar <i class="bi bi-check2-square"></i></a>
+                    <a href="?id=<?php echo $value['id']; ?>" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Ver detalles</a>
+                    <a class="btn btn-success btn-sm">Editar <i class="bi bi-pencil-square"></i></a>
                 </td>
             </tr>
         <?php } ?>
@@ -66,7 +74,7 @@
 
 
 <div style="width: max-content;" class="p-2 px-4 text-center bg-warning rounded-3">
-    <h5><i class="bi bi-bag-check-fill"></i> Historial de propuestas procesada</h5>
+    <h5><i class="bi bi-bag-check-fill"></i> Historial de propuestas procesadas</h5>
 </div>
 
 <table id="table_id" class="display table mt-4 table-bordered">
@@ -89,7 +97,7 @@
                 <td>S/. <?php echo $value['total']; ?></td>
                 <td><?php echo $value['fechaCreacion']; ?></td>
                 <td class="d-flex justify-content-center gap-4">
-                    <button class="btn btn-primary">Ver Detalles</button>
+                    <button class="btn btn-primary">Ver detalles</button>
                 </td>
             </tr>
         <?php } ?>
@@ -97,71 +105,44 @@
 </table>
 </div>
 
-
-<!-- Modal -->
-<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
+<div class="modal fade" id="exampleModalDel" tabindex="-1" aria-labelledby="exampleModalDel" aria-hidden="true">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="staticBackdropLabel">Detalles del Kit</h5>
+        <h5 class="modal-title" id="exampleModalLabel">¿Desea eliminar las propuestas generadas?</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <label for="productos" class="form-label"><b>Generado por</b></label><br>
-                    <label for="productos" class="form-label">Renato Gutiérrez</label>
-                </div>
-                <div class="col">
-                    <label for="productos" class="form-label"><b>Fecha de Creación</b></label><br>
-                    <label for="productos" class="form-label">2022-11-12</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <label for="productos" class="form-label"><b>Productos</b></label><br>
-                    <label for="productos" class="form-label">3</label>
-                </div>
-                <div class="col">
-                    <label for="productos" class="form-label"><b>Total</b></label><br>
-                    <label for="productos" class="form-label">S/. 21.90</label>
-                </div>
-            </div>
-        </div>
+        <p><i class="bi bi-info-circle-fill"></i> Recuerda: Eliminará los datos de la tabla de propuestas generadas, pero no editará el historial de propuestas procesadas </p>
       </div>
-    <div class="modal-footer">
-        <table id="table_id" class="display table pt-4 table-bordered">
-            <thead class="table-dark text-center mx-auto">
-                <tr>
-                    <th>Producto</th>
-                    <th>Precio Unitario</th>
-                    <th>Cantidad</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="text-center align-middle">
-                    <td>Bolsa de Azúcar</td>
-                    <td>S/. 2.50</td>
-                    <td>3</td>
-                    <td>S/. 7.50</td>
-                </tr>
-                <tr class="text-center align-middle">
-                    <td>Tarro de leche Gloria</td>
-                    <td>S/. 5.60</td>
-                    <td>2</td>
-                    <td>S/. 11.20</td>
-                </tr>
-                <tr class="text-center align-middle">
-                    <td>Bolsa de Arroz</td>
-                    <td>S/. 3.20</td>
-                    <td>1</td>
-                    <td>S/. 3.20</td>
-                </tr>
-            </tbody>
-        </table>
+        <form method="POST" action="/softkit/controller/index.php">   
+            <div class="modal-footer">
+                <input type="hidden" value="ok" name="remove-kits">
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-danger">Confirmar</button>
+            </div>
+        </form>
     </div>
+  </div>
+</div>
+
+<div class="modal fade" id="processModal" tabindex="-1" aria-labelledby="processModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">¿Desea autorizar esta propuesta generada?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p><i class="bi bi-info-circle-fill"></i> Recuerda: Al confirmar se actualizará el stock de los productos y la propuesta se almacenará en el historial </p>
+      </div>
+        <form method="POST" action="/softkit/controller/index.php">   
+            <div class="modal-footer">
+                <input type="hidden" name="process-kit" id="process-kit">
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-danger">Confirmar</button>
+            </div>
+        </form>
     </div>
   </div>
 </div>
@@ -177,6 +158,10 @@
             <form method="POST" action="/softkit/controller/index.php">   
                 <div class="modal-body row gap-3">
                     <div class="form-group">
+                        <label for="kits" class="form-label">Cantidad de Kits</label>
+                        <input type="number" class="form-control" id="kits" name="kits" required>
+                    </div>  
+                    <div class="form-group">
                         <label for="productos" class="form-label">Productos por Kit</label>
                         <input type="number" class="form-control" id="productos" name="productos" required>
                     </div>  
@@ -188,30 +173,20 @@
                         <label for="propuesta" class="form-label">Cantidad de Propuestas</label>
                         <input type="number" class="form-control" id="propuesta" name="propuesta" required>
                     </div> 
-                    <!--<div class="form-group">
-                        <label for="proveedorKit" class="form-label">Elegir Producto</label>
-                        <select id="proveedorKit" name="proveedorKit" class="form-select" required>
-                        <option selected value="">Selecciona</option>
-                        <option>Leche Gloria</option>
-                        <option>Bolsa de Azúcar</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="precioProducto" class="form-label">Cantidad</label>
-                        <input type="number" class="form-control" id="precioProducto" name="precioProducto" required>
-                    </div>
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-1 border-bottom"></div>
-                    <div class="form-group text-center">
-                        <button type="button" class="btn btn-outline-success">Añadir Producto</button>
-                    </div>-->
                 <div class="modal-footer">
-                    <input type="hidden" value="ok" name="register-product">
+                    <input type="hidden" value="ok" name="generate-kits">
                     <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal" aria-label="Close">Cancelar</button>
-                    <button type="submit" id="btnGuardar" class="btn btn-primary">Guardar Datos <i class="bi bi-check-lg"></i></button>
+                    <button type="submit" id="btnGuardar" class="btn btn-primary">Generar <i class="bi bi-check-lg"></i></button>
                 </div>
             </form>    
         </div>
     </div>
 </div>  
+<script>
+    $(document).on("click", "#buttonProcess", function () {
+        var Id = $(this).data('id');
+        $(".modal-footer #process-kit").val( Id );
+    });
+</script>
 </body>
 </html>
