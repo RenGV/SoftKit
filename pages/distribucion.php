@@ -11,11 +11,6 @@
     require("../partials/header.php");
     require_once("../controller/index.php");
 
-    if(isset($_GET['id'])){
-        $kitDetails=getKitDetails($_GET['id']);
-        debug_to_console(json_encode($kitDetails));
-    }
-
     require("../assets/modals/kitDetails.php");
     
     $data = listAllKits();

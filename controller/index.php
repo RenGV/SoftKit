@@ -91,10 +91,10 @@ if(isset($_POST['generate-kits'])){
     session_start();
     try{
         $id = $_SESSION['id'];
-        $kits = $_POST['kits']; // 10 kits
-        $productos = $_POST['productos']; // 2 tipos de productos en un kit
-        $cantidad = $_POST['cantidad']; // 3 productos por tipo
-        $propuesta = $_POST['propuesta']; // 4 propuestas
+        $kits = $_POST['kits'];
+        $productos = $_POST['productos'];
+        $cantidad = $_POST['cantidad'];
+        $propuesta = $_POST['propuesta'];
         $connection = Database::connect();
 
         $limit = $kits*$cantidad;
@@ -187,7 +187,7 @@ if(isset($_POST['process-kit'])){
 
         $sql2 = "SELECT p.descripcion, kp.cantidad, p.stock FROM kit k JOIN kit_x_producto kp JOIN producto p
         WHERE kp.idkit = k.id AND p.id = kp.idproducto AND k.id = :id"; <- Obtienes los productos del kit
-        
+
         */
         header("Location: /softkit/pages/distribucion.php");
     }catch(PDOException $e){
