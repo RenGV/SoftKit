@@ -2,8 +2,8 @@ CREATE TABLE `kit` (
   `id` int(11) NOT NULL,
   `usuario` int(11) NOT NULL,
   `total` decimal(11,2) NOT NULL,
-  `fechaCreacion` date NOT NULL DEFAULT current_timestamp(),
-  `fechaProcesada` date DEFAULT NULL,
+  `fechaCreacion` datetime NOT NULL DEFAULT current_timestamp(),
+  `fechaProcesada` datetime DEFAULT NULL,
   `estado` int(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -12,14 +12,14 @@ CREATE TABLE `kit` (
 --
 
 INSERT INTO `kit` (`id`, `usuario`, `total`, `fechaCreacion`, `fechaProcesada`, `estado`) VALUES
-(2, 1, '23.30', '2022-11-13', NULL, 2),
-(42, 1, '35.10', '2022-11-14', NULL, 2),
-(44, 1, '38.00', '2022-11-14', NULL, 1),
-(45, 1, '38.00', '2022-11-14', NULL, 1),
-(46, 1, '28.20', '2022-11-14', NULL, 1),
-(47, 1, '39.40', '2022-11-14', NULL, 1),
-(48, 1, '38.00', '2022-11-14', NULL, 1),
-(49, 1, '38.60', '2022-11-14', NULL, 1);
+(2, 1, '23.30', '2022-11-13 00:00:00', NULL, 2),
+(42, 1, '35.10', '2022-11-14 00:00:00', NULL, 2),
+(49, 1, '38.60', '2022-11-14 00:00:00', NULL, 2),
+(50, 1, '66.60', '2022-11-14 01:00:00', NULL, 2),
+(62, 1, '57.00', '2022-11-15 19:25:17', NULL, 2),
+(77, 1, '83.40', '2022-11-15 22:33:57', NULL, 1),
+(78, 1, '83.40', '2022-11-15 22:33:57', NULL, 1),
+(79, 1, '83.40', '2022-11-15 22:33:57', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -46,24 +46,31 @@ INSERT INTO `kit_x_producto` (`id`, `idProducto`, `cantidad`, `subtotal`, `idKit
 (83, 3, 3, '9.60', 42),
 (84, 2, 3, '7.50', 42),
 (85, 5, 3, '18.00', 42),
-(89, 4, 2, '21.00', 44),
-(90, 5, 2, '12.00', 44),
-(91, 2, 2, '5.00', 44),
-(92, 5, 2, '12.00', 45),
-(93, 4, 2, '21.00', 45),
-(94, 2, 2, '5.00', 45),
-(95, 1, 2, '11.20', 46),
-(96, 5, 2, '12.00', 46),
-(97, 2, 2, '5.00', 46),
-(98, 5, 2, '12.00', 47),
-(99, 3, 2, '6.40', 47),
-(100, 4, 2, '21.00', 47),
-(101, 2, 2, '5.00', 48),
-(102, 4, 2, '21.00', 48),
-(103, 5, 2, '12.00', 48),
 (104, 4, 2, '21.00', 49),
 (105, 1, 2, '11.20', 49),
-(106, 3, 2, '6.40', 49);
+(106, 3, 2, '6.40', 49),
+(107, 4, 3, '31.50', 50),
+(108, 5, 3, '18.00', 50),
+(109, 3, 3, '9.60', 50),
+(110, 2, 3, '7.50', 50),
+(145, 5, 3, '18.00', 62),
+(146, 4, 3, '31.50', 62),
+(147, 2, 3, '7.50', 62),
+(188, 3, 3, '9.60', 77),
+(189, 5, 3, '18.00', 77),
+(190, 4, 3, '31.50', 77),
+(191, 2, 3, '7.50', 77),
+(192, 1, 3, '16.80', 77),
+(193, 4, 3, '31.50', 78),
+(194, 2, 3, '7.50', 78),
+(195, 1, 3, '16.80', 78),
+(196, 5, 3, '18.00', 78),
+(197, 3, 3, '9.60', 78),
+(198, 2, 3, '7.50', 79),
+(199, 4, 3, '31.50', 79),
+(200, 3, 3, '9.60', 79),
+(201, 5, 3, '18.00', 79),
+(202, 1, 3, '16.80', 79);
 
 -- --------------------------------------------------------
 
@@ -76,7 +83,7 @@ CREATE TABLE `producto` (
   `descripcion` varchar(100) NOT NULL,
   `precioUnitario` decimal(11,2) NOT NULL,
   `stock` int(11) NOT NULL,
-  `fechaIngreso` date NOT NULL,
+  `fechaIngreso` datetime NOT NULL,
   `estado` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -85,11 +92,11 @@ CREATE TABLE `producto` (
 --
 
 INSERT INTO `producto` (`id`, `descripcion`, `precioUnitario`, `stock`, `fechaIngreso`, `estado`) VALUES
-(1, 'Tarro de leche Gloria', '5.60', 25, '2022-11-12', 1),
-(2, 'Bolsa de azúcar', '2.50', 30, '2022-11-12', 1),
-(3, 'Bolsa de Arroz', '3.20', 34, '2022-11-12', 1),
-(4, 'Aceite Vegetal Primor Premium 900ml', '10.50', 30, '2022-11-14', 1),
-(5, 'Trozos de Atún en Aceite Primor 140g', '6.00', 40, '2022-11-14', 1);
+(1, 'Tarro de leche Gloria', '5.60', 25, '2022-11-12 00:00:00', 1),
+(2, 'Bolsa de azúcar', '2.50', 30, '2022-11-12 00:00:00', 1),
+(3, 'Bolsa de Arroz', '3.20', 34, '2022-11-12 00:00:00', 1),
+(4, 'Aceite Vegetal Primor Premium 900ml', '10.50', 30, '2022-11-14 00:00:00', 1),
+(5, 'Trozos de Atún en Aceite Primor 140g', '6.00', 40, '2022-11-14 00:00:00', 1);
 
 -- --------------------------------------------------------
 
@@ -179,13 +186,13 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `kit`
 --
 ALTER TABLE `kit`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 
 --
 -- AUTO_INCREMENT de la tabla `kit_x_producto`
 --
 ALTER TABLE `kit_x_producto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=203;
 
 --
 -- AUTO_INCREMENT de la tabla `producto`
