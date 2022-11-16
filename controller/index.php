@@ -217,27 +217,11 @@ function listAllKits(){
     try{
         $connection=Database::connect();
         $sql="SELECT k.id, CONCAT(u.nombre,' ',u.apellido) as usuario, (SELECT COUNT(*) FROM kit_x_producto kp 
-        WHERE kp.idKit = k.id) as productos, k.total, k.fechaCreacion FROM kit k JOIN usuario u WHERE u.id = k.usuario AND k.estado = 1";
+        WHERE kp.idKit = k.id) as productos, k.total, k.fechaCreacion FROM kit k JOIN usuario u WHERE u.id = k.usuario AND k.estado = 1 ORDER BY k.fechaCreacion DESC";
         $listKits=$connection->prepare($sql);
         $listKits->execute();
         $listKits=$listKits->fetchAll(PDO::FETCH_ASSOC);
         return $listKits;
-    }catch(PDOException $e){
-        debug_to_console($e);
-    }
-}
-
-function getKitDetails($id){
-    try{
-        $connection=Database::connect();
-        $sql="SELECT k.id, CONCAT(u.nombre,' ',u.apellido) as usuario, (SELECT COUNT(*) FROM kit_x_producto kp 
-        WHERE kp.idKit = k.id) as productos, p.descripcion, p.precioUnitario, kp.cantidad, kp.subtotal, k.total, k.fechaCreacion FROM kit k 
-        JOIN usuario u JOIN producto p JOIN kit_x_producto kp WHERE u.id = k.usuario AND k.id = kp.idKit AND kp.idProducto = p.id AND k.estado = 1 AND k.id = :id";
-        $kitDetails=$connection->prepare($sql);
-        $kitDetails->bindParam(":id",$id,PDO::PARAM_STR);
-        $kitDetails->execute();
-        $kitDetails=$kitDetails->fetchAll(PDO::FETCH_ASSOC);
-        return $kitDetails;
     }catch(PDOException $e){
         debug_to_console($e);
     }
@@ -248,7 +232,7 @@ function listAllProcessedKits(){
     try{
         $connection=Database::connect();
         $sql="SELECT k.id, CONCAT(u.nombre,' ',u.apellido) as usuario, (SELECT COUNT(*) FROM kit_x_producto kp 
-        WHERE kp.idKit = k.id) as productos, k.total, k.fechaCreacion FROM kit k JOIN usuario u WHERE u.id = k.usuario AND k.estado = 2";
+        WHERE kp.idKit = k.id) as productos, k.total, k.fechaCreacion FROM kit k JOIN usuario u WHERE u.id = k.usuario AND k.estado = 2 ORDER BY k.fechaCreacion DESC";
         $listKits=$connection->prepare($sql);
         $listKits->execute();
         $listKits=$listKits->fetchAll(PDO::FETCH_ASSOC);
@@ -267,6 +251,20 @@ function listAllProducts(){
         $listKits->execute();
         $listKits=$listKits->fetchAll(PDO::FETCH_ASSOC);
         return $listKits;
+    }catch(PDOException $e){
+        debug_to_console($e);
+    }
+}
+
+
+function getAmountProducts(){
+    try{
+        $connection=Database::connect();
+        $sql="SELECT SUM(`stock`) FROM `producto` WHERE `estado` = 1";
+        $stmt=$connection->prepare($sql);
+        $stmt->execute();
+        $amount=$stmt->fetchColumn();
+        return $amount;
     }catch(PDOException $e){
         debug_to_console($e);
     }

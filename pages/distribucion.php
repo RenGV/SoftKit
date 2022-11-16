@@ -10,20 +10,18 @@
 <?php 
     require("../partials/header.php");
     require_once("../controller/index.php");
-
     require("../assets/modals/kitDetails.php");
-    
+
+    $amount = getAmountProducts();
     $data = listAllKits();
-
     $processedData = listAllProcessedKits();
-
 
 ?>
 
 <div class="container mt-5">
 <div class="card shadow-sm">
     <div class="card-header text-center p-2 text-white bg-dark">
-        <h4 class="card-title"><i class="bi bi-basket-fill"></i> 450 productos registrados actualmente</h4>
+        <h4 class="card-title"><i class="bi bi-basket-fill"></i> <?php echo $amount; ?> productos registrados actualmente</h4>
     </div>
     <div class="card-body text-center">
         <a class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal" href="?nuevo=registro" role="button">Generar distribución <i class="bi bi-plus"></i></a>
@@ -46,7 +44,7 @@
             <th>Productos</th>
             <th>Total</th>
             <th>Fecha de Creación</th>
-            <th>Accion</th>
+            <th>Acción</th>
         </tr>
     </thead>
     <tbody>
@@ -58,9 +56,8 @@
                 <td>S/. <?php echo $value['total']; ?></td>
                 <td><?php echo $value['fechaCreacion']; ?></td>
                 <td class="d-flex justify-content-center gap-2">
+                    <button type="button" onClick="verDetalles(<?php echo $value['id']; ?>)" class="btn btn-primary btn-sm">Ver detalles</button>
                     <a data-id="<?php echo $value['id']; ?>" class="btn btn-warning btn-sm" id="buttonProcess" data-bs-toggle="modal" data-bs-target="#processModal">Autorizar <i class="bi bi-check2-square"></i></a>
-                    <a href="?id=<?php echo $value['id']; ?>" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Ver detalles</a>
-                    <a class="btn btn-success btn-sm">Editar <i class="bi bi-pencil-square"></i></a>
                 </td>
             </tr>
         <?php } ?>
@@ -80,7 +77,7 @@
             <th>Productos</th>
             <th>Total</th>
             <th>Fecha de Creación</th>
-            <th>Accion</th>
+            <th>Acción</th>
         </tr>
     </thead>
     <tbody>
@@ -92,7 +89,8 @@
                 <td>S/. <?php echo $value['total']; ?></td>
                 <td><?php echo $value['fechaCreacion']; ?></td>
                 <td class="d-flex justify-content-center gap-4">
-                    <button class="btn btn-primary">Ver detalles</button>
+                    <button type="button" onClick="verDetalles(<?php echo $value['id']; ?>)" class="btn btn-primary btn-sm">Ver detalles</button>
+                    <button class="btn btn-secondary btn-sm">Generar informe</button>
                 </td>
             </tr>
         <?php } ?>
@@ -177,11 +175,63 @@
         </div>
     </div>
 </div>  
-<script>
+<script type="text/javascript">
     $(document).on("click", "#buttonProcess", function () {
         var Id = $(this).data('id');
         $(".modal-footer #process-kit").val( Id );
     });
+
+    function verDetalles(valor){
+        $.ajax({
+            url:'../assets/modals/getKitDetails.php',
+            type:'POST',
+            data:{
+                id:valor
+            },
+            success:function(data){
+                console.log(data.detail);
+                let header=`
+                    <div class="row">
+                        <div class="col">
+                            <label for="productos" class="form-label"><b>Generado por</b></label><br>
+                            <label for="productos" class="form-label">`+data.detail[0].usuario+`</label>
+                        </div>
+                        <div class="col">
+                            <label for="productos" class="form-label"><b>Fecha de Creación</b></label><br>
+                            <label for="productos" class="form-label">`+data.detail[0].fechaCreacion+`</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="productos" class="form-label"><b>Productos</b></label><br>
+                            <label for="productos" class="form-label">`+data.detail[0].productos+`</label>
+                        </div>
+                        <div class="col">
+                            <label for="productos" class="form-label"><b>Total</b></label><br>
+                            <label for="productos" class="form-label">S/. `+data.detail[0].total+`</label>
+                        </div>
+                    </div>`;
+                let products='';
+                for (let i = 0; i < data.detail.length; i++) {
+                    products+=
+                    `
+                    <tr class="text-center align-middle">
+                        <td>`+data.detail[i].descripcion+`</td>
+                        <td>S/. `+data.detail[i].precioUnitario+`</td>
+                        <td>`+data.detail[i].productos+`</td>
+                        <td>S/. `+data.detail[i].subtotal+`</td>
+                    </tr>
+                    `;
+                }
+                
+                document.getElementById("header-list").innerHTML=header;
+                document.getElementById("body-list").innerHTML=products;
+            },
+            error:function(e){
+                console.error(e);
+            }
+        }).then($('#staticBackdrop').modal('show'))
+    }
 </script>
 </body>
 </html>
