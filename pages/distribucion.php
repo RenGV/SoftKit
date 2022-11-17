@@ -151,20 +151,20 @@
             <form method="POST" action="/softkit/controller/index.php">   
                 <div class="modal-body row gap-3">
                     <div class="form-group">
-                        <label for="kits" class="form-label">Cantidad de Kits</label>
+                        <label for="kits" class="form-label">¿Cuántos kits se van a repartir?</label>
                         <input type="number" class="form-control" id="kits" name="kits" required>
                     </div>  
                     <div class="form-group">
-                        <label for="productos" class="form-label">Productos por Kit</label>
+                        <label for="productos" class="form-label">¿Cuántos tipos de producto debe contener cada kit?</label>
                         <input type="number" class="form-control" id="productos" name="productos" required>
                     </div>  
                     <div class="form-group">
-                        <label for="cantidad" class="form-label">Cantidad de Productos</label>
+                        <label for="cantidad" class="form-label">¿Cuántos productos habrán por cada tipo?</label>
                         <input type="number" class="form-control" id="cantidad" name="cantidad" required>
                     </div>  
                     <div class="form-group">
-                        <label for="propuesta" class="form-label">Cantidad de Propuestas</label>
-                        <input type="number" class="form-control" id="propuesta" name="propuesta" required>
+                        <label for="propuesta" class="form-label">¿Cuántas propuestas desea generar? <span class="badge rounded-pill bg-warning " value="1" id="rangePropuesta">1</span></label>
+                        <input type="range" class="form-range" min="1" max="10" value="1" id="propuesta" name="propuesta" onchange="updateTextInput(this.value);" required>
                     </div> 
                 <div class="modal-footer">
                     <input type="hidden" value="ok" name="generate-kits">
@@ -181,6 +181,10 @@
         $(".modal-footer #process-kit").val( Id );
     });
 
+    function updateTextInput(val) {
+        document.getElementById('rangePropuesta').innerHTML=val; 
+    }
+    
     function verDetalles(valor){
         $.ajax({
             url:'../assets/modals/getKitDetails.php',
